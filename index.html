@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="ຫ້ອງແຖວ🪿 – ລະບົບຈັດການອາພາດເມັນ ແລະ ການຊຳລະຄ່າເຊົ່າລາຍເດືອນ">
+  <meta name="theme-color" content="#1f5fae">
+  <title>ຫ້ອງແຖວ🪿 – ລະບົບຈັດການອາພາດເມັນ</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ຫ້ອງແຖວ">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Font loads without blocking the first screen; the system font shows until it arrives. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700;800&display=swap"></noscript>
+  <link rel="stylesheet" href="styles.css?v=dd77fccf60">
+</head>
+<body>
+  <header>
+    <div class="logo" aria-hidden="true"><img src="icon-192.png" alt=""></div>
+    <h1>ຫ້ອງແຖວ🪿<small id="sub"></small></h1>
+    <span id="syncBadge" class="badge" style="display:none;cursor:pointer" onclick="if(role==='admin')sheetDlg()"></span>
+    <button id="lo" class="btn" style="display:none;min-height:38px;padding:6px 14px;background:var(--seg);color:var(--head-ink)" onclick="logout()">ອອກຈາກລະບົບ</button>
+    <div class="seg" role="tablist" aria-label="ສະຫຼັບບົດບາດ">
+      <button id="rt" onclick="setRole('tenant')">ຜູ້ເຊົ່າ</button>
+      <button id="ra" onclick="setRole('admin')">ແອດມິນ</button>
+    </div>
+  </header>
+
+  <main id="app"></main>
+  <nav id="nav"></nav>
+  <dialog id="dlg" closedby="any"></dialog>
+
+  <script src="logic.js?v=236d67d7d0"></script>
+  <script src="config.js?v=4150850b14"></script>
+  <script src="store.js?v=f4558abc42"></script>
+  <script src="app.js?v=465e6b3158"></script>
+</body>
+</html>
