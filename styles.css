@@ -112,9 +112,8 @@ header {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: color-mix(in srgb, var(--head) 88%, transparent);
-  backdrop-filter: saturate(1.6) blur(12px);
-  -webkit-backdrop-filter: saturate(1.6) blur(12px);
+  /* solid, no blur: page content no longer shows through the top bar */
+  background: var(--head);
   color: var(--head-ink);
   padding: 10px 16px;
   display: flex;
