@@ -611,6 +611,44 @@ h3 {
   background: currentColor;
 }
 
+/* Sync status: a colored dot in the header (wording is in its tooltip). */
+.sync-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent !important;
+  flex: none;
+}
+
+.sync-dot::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.sync-dot.is-syncing::before {
+  animation: sync-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes sync-pulse {
+  50% {
+    opacity: .35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sync-dot.is-syncing::before {
+    animation: none;
+  }
+}
+
 .b-warn {
   background: var(--warnbg);
   color: var(--warn);

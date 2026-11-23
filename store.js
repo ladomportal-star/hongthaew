@@ -182,17 +182,25 @@ async function post(body) {
   return res.json();
 }
 
+// The sync status is a colored dot (green = saved, yellow = syncing, red = offline or
+// error). Its full wording is in the tooltip and the screen-reader label.
 function setSyncBadge(st, txt) {
   syncState = st;
   const b = $("syncBadge");
   if (!b) return;
+  const show = (cls, label) => {
+    b.className = "sync-dot " + cls;
+    b.title = label;
+    b.setAttribute("aria-label", label);
+    b.setAttribute("role", "status");
+    b.textContent = "";
+  };
   if (!remote()) {
     b.style.display = role === "admin" ? "inline-flex" : "none";
-    b.className = "badge b-warn";
-    b.textContent = "ເຊື່ອມຕໍ່ Sheet";
+    show("b-warn", "ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່ Google Sheet");
     return;
   }
-  // Tenants only see the badge while something is still waiting to be sent.
+  // Tenants only see the dot while something is still waiting to be sent.
   if (role !== "admin" && !outbox.length) {
     b.style.display = "none";
     return;
@@ -200,14 +208,13 @@ function setSyncBadge(st, txt) {
   b.style.display = "inline-flex";
   const waiting = outbox.length ? " · ລໍຖ້າສົ່ງ " + outbox.length : "";
   const map = {
-    syncing: ["b-warn", (txt || "ກຳລັງຊິ້ງ...") + waiting],
-    ok: ["b-ok", txt || "Google Sheet"],
+    syncing: ["b-warn is-syncing", (txt || "ກຳລັງຊິ້ງ...") + waiting],
+    ok: ["b-ok", "Google Sheet: " + (txt || "ເຊື່ອມຕໍ່ແລ້ວ")],
     err: ["b-bad", (txt || "ອອບລາຍ") + waiting],
-    idle: ["b-ok", "Google Sheet" + waiting]
+    idle: ["b-ok", "Google Sheet: ເຊື່ອມຕໍ່ແລ້ວ" + waiting]
   };
   const m = map[st] || map.idle;
-  b.className = "badge " + m[0];
-  b.textContent = m[1];
+  show(m[0], m[1]);
 }
 
 function takeServer(j) {
