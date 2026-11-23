@@ -170,7 +170,8 @@ header #lo {
 main {
   max-width: 760px;
   margin: 0 auto;
-  padding: 18px 16px 104px;
+  /* room for the bottom tab bar (58px) and the iPhone home bar */
+  padding: 18px 16px calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
 .card {
@@ -984,18 +985,6 @@ nav {
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   z-index: 10;
-}
-
-/* On *.netlify.app the free plan shows a "Powered by Netlify" badge at the bottom
-   right; lift the menu buttons above it (the menu background still reaches the edge). */
-.on-netlify nav {
-  /* Badge is ~44px tall, 16px from the bottom (it ignores the iPhone home-bar area),
-     so 64px puts the buttons just above it; also clears the home bar (34px). */
-  padding-bottom: max(64px, env(safe-area-inset-bottom, 0px));
-}
-
-.on-netlify main {
-  padding-bottom: 168px;
 }
 
 nav:empty {

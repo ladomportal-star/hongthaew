@@ -4,8 +4,6 @@
 
 const KEY = "courtyard_v2";
 
-// Netlify's free-plan badge covers the bottom menu; css lifts the menu on netlify.app.
-if (/\.netlify\.app$/.test(location.hostname)) document.documentElement.classList.add("on-netlify");
 const GS_KEY = "courtyard_gs_url";
 
 // Optional: Paste your deployed Google Apps Script Web App URL here for production
