@@ -923,8 +923,12 @@ function viewSlip(id, back) {
   }
   ${p.status === "rejected" && p.reason ? `<div class="reason">${esc(p.reason)}</div>` : ""}
   ${
-    sess && sess.role === "admin" && p.status === "confirmed"
-      ? `<button class="btn bad" style="width:100%;margin-top:12px" onclick="undoPay(${p.id},${back ? `'${back}'` : "null"})">${p.manual ? "ລຶບລາຍການນີ້" : "ຍົກເລີກການອະນຸມັດ"}</button>`
+    sess && sess.role === "admin" && p.status === "confirmed" && !p.manual
+      ? `<button class="btn ghost" style="width:100%;margin-top:12px" onclick="undoPay(${p.id},${back ? `'${back}'` : "null"})">ຍົກເລີກການອະນຸມັດ</button>`
+      : ""
+  }${
+    sess && sess.role === "admin"
+      ? `<button class="btn bad" style="width:100%;margin-top:8px" onclick="delPayDlg(${p.id},${back ? `'${back}'` : "null"})">🗑 ລຶບລາຍການນີ້ອອກຈາກປະຫວັດ</button>`
       : ""
   }
   <button class="btn ghost" style="width:100%;margin-top:12px" onclick="${
@@ -1072,6 +1076,27 @@ function recordSave() {
   $("dlg").close();
   render();
   toast("ບັນທຶກການຊຳລະແລ້ວ");
+}
+
+// Admin removes a payment record from history for good (with a confirmation).
+function delPayDlg(id, back) {
+  const p = S.pay.find(x => x.id === id);
+  if (!p) return;
+  ask(
+    "ລຶບລາຍການນີ້?",
+    `<b>${esc(kindsLabel(p))} · ${monthLabel(p.month)}</b><br>ຫ້ອງ ${esc(p.room)} · ${kip(p.amount)} · ${esc(
+      PB[p.status][1]
+    )}<br><br>ລາຍການຈະຖືກລຶບອອກຈາກປະຫວັດ ແລະ Google Sheet ຖາວອນ${
+      p.status === "confirmed" ? " ແລະ ຈະບໍ່ຖືກນັບເປັນເງິນທີ່ໄດ້ຮັບອີກ" : ""
+    }. ກູ້ຄືນບໍ່ໄດ້.`,
+    "ລຶບຖາວອນ",
+    () => {
+      if (!act("delPay", { id })) return;
+      render();
+      back ? openRoom(back) : $("dlg").close();
+      toast("ລຶບລາຍການແລ້ວ");
+    }
+  );
 }
 
 // Undo an approval made by mistake (the slip goes back to waiting for review).

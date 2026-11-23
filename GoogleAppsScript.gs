@@ -60,7 +60,7 @@ const Logic = (function () {
   // Tenants cannot change their own PIN; only the admin sets it (editTenant).
   const TENANT_ACTIONS = ["profile", "dismiss", "slip"];
   const ADMIN_ACTIONS = [
-    "decideProfile", "decidePay", "undoPay", "recordPay", "addRooms", "editRoom", "delRoom",
+    "decideProfile", "decidePay", "undoPay", "delPay", "recordPay", "addRooms", "editRoom", "delRoom",
     "moveIn", "moveOut", "editTenant", "adminPass"
   ];
 
@@ -276,6 +276,14 @@ const Logic = (function () {
 
   // Undo an approval made by mistake: the slip goes back to "waiting". A payment the
   // admin recorded by hand has no tenant slip to go back to, so it is removed.
+  // Delete a payment record from history (any status, current or moved-out tenant).
+  A.delPay = (S, a) => {
+    const before = S.pay.length + S.payArchive.length;
+    S.pay = S.pay.filter(p => p.id !== a.id);
+    S.payArchive = S.payArchive.filter(p => p.id !== a.id);
+    if (S.pay.length + S.payArchive.length === before) fail("ບໍ່ພົບລາຍການ");
+  };
+
   A.undoPay = (S, a) => {
     const p = S.pay.find(x => x.id === a.id);
     if (!p) fail("ບໍ່ພົບສະລິບ");
