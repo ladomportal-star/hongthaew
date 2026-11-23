@@ -223,7 +223,7 @@ function vDash() {
       : ""
   }<div class="sec" style="margin:4px 0 12px"><h2 style="margin:0">ພາບລວມ</h2><span class="mute">${td.getDate()} ${
     LM[td.getMonth()]
-  } ${td.getFullYear()}</span></div><div class="stats">
+  } ${td.getFullYear()}</span></div>${periodBar()}<div class="stats">
   <div class="stat"><b>${occ}/${tot}</b><span class="mute">ຫ້ອງທີ່ມີຜູ້ເຊົ່າ</span><div class="bar"><i style="width:${
     tot ? (occ / tot) * 100 : 0
   }%"></i></div></div>
@@ -231,16 +231,8 @@ function vDash() {
   <div class="stat" onclick="setTab('appr')" style="cursor:pointer"><b style="color:var(--warn)">${
     S.pending.length + S.pay.filter(x => x.status === "pending").length
   }</b><span class="mute">ລໍຖ້າການອະນຸມັດ</span></div>
-  ${moneyStat("rent", occ, `ຈາກທັງໝົດ ${kipShort(inc)}`)}
-  <div class="stat"><b style="color:var(--ok)">${
-    S.pay.filter(p => hasKind(p, "rent") && p.month === thisMonth() && p.status === "confirmed").length
-  }</b><span class="mute">ຊຳລະຄ່າເຊົ່າແລ້ວ ${monthLabel(thisMonth())}</span></div>
-  <div class="stat"><b style="color:var(--bad)">${
-    occ -
-    S.rooms.filter(r => r.t && S.pay.some(p => hasKind(p, "rent") && p.room === r.n && p.month === thisMonth() && p.status === "confirmed"))
-      .length
-  }</b><span class="mute">ຍັງບໍ່ໄດ້ຊຳລະ</span></div>
-  ${["water", "elec", "garbage"].map(k => moneyStat(k, occ)).join("")}</div>
+  ${dashMode === "year" ? yearStats(dashY()) : monthStats(dashM(), occ, inc)}</div>
+  ${dashMode === "year" ? yearTable(dashY()) : ""}
   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0">ຈັດການຫ້ອງ · ${tot} ຫ້ອງ</h3><div style="display:flex;gap:6px"><button class="btn ${
     delMode ? "bad" : "ghost"
   }" style="min-height:40px;padding:6px 12px" onclick="delMode=!delMode;render()">${
@@ -264,7 +256,7 @@ function vDash() {
           .join("")
       : `<p class="mute">ບໍ່ມີຄຳຂໍທີ່ລໍຖ້າ. ເມື່ອຜູ້ເຊົ່າແກ້ໄຂຂໍ້ມູນ ຈະສະແດງຢູ່ບ່ອນນີ້.</p>`
   }</div>
-  ${usageChart()}${payList()}<div class="row" style="margin-bottom:10px"><button class="btn ghost" onclick="sheetDlg()">ຕັ້ງຄ່າ Google Sheet</button><button class="btn ghost" onclick="passDlg()">ປ່ຽນລະຫັດຜ່ານແອດມິນ</button></div>${
+  ${dashMode === "year" ? "" : usageChart() + payList(dashM())}<div class="row" style="margin-bottom:10px"><button class="btn ghost" onclick="sheetDlg()">ຕັ້ງຄ່າ Google Sheet</button><button class="btn ghost" onclick="passDlg()">ປ່ຽນລະຫັດຜ່ານແອດມິນ</button></div>${
     remote() ? "" : `<div class="row" style="margin-bottom:10px"><button class="btn ghost" onclick="resetDemo()">ຣີເຊັດຂໍ້ມູນທົດລອງ</button></div>`
   }<div id="installSlot" style="margin-bottom:10px">${installBtn()}</div>`;
 }
@@ -273,9 +265,9 @@ function vDash() {
 // underneath so nothing is hidden.
 const STAT_EMOJI = { water: "💧", elec: "⚡", garbage: "🗑️" };
 
-function moneyStat(k, occ, note) {
-  const m = thisMonth();
-  const mine = S.pay.filter(p => p.month === m && hasKind(p, k) && (room(p.room) || {}).t);
+function moneyStat(k, occ, note, month) {
+  const m = month || thisMonth();
+  const mine = allPay().filter(p => p.month === m && hasKind(p, k));
   const ok = mine.filter(p => p.status === "confirmed");
   const total = ok.reduce((a, p) => a + amtFor(p, k), 0);
   const rooms = new Set(ok.map(p => p.room)).size;
@@ -288,6 +280,113 @@ function moneyStat(k, occ, note) {
   )} (ກີບ)</span><small class="stat-sub">ອະນຸມັດແລ້ວ ${rooms}/${occ} ຫ້ອງ${waiting ? ` · ລໍຖ້າ ${waiting}` : ""}${
     note ? `<br>${note}` : ""
   }</small></div>`;
+}
+
+/* ---------- Dashboard period: month by month, or a whole year ---------- */
+
+let dashMode = "month"; // "month" | "year"
+let dashMonth = "";
+let dashYear = "";
+
+// Payments of current and moved-out tenants: money received stays in the totals.
+const allPay = () => S.pay.concat(S.payArchive || []);
+const dashM = () => dashMonth || thisMonth();
+const dashY = () => dashYear || thisMonth().slice(0, 4);
+const paidSum = (k, test) => allPay().filter(p => p.status === "confirmed" && test(p)).reduce((a, p) => a + amtFor(p, k), 0);
+
+function dashMonths() {
+  const c = thisMonth();
+  return [...new Set([c, Logic.nextMonth(c), ...allPay().map(p => p.month)])].filter(Boolean).sort().reverse();
+}
+
+function dashYears() {
+  return [...new Set([thisMonth().slice(0, 4), ...allPay().map(p => String(p.month).slice(0, 4))])].sort().reverse();
+}
+
+function setDash(mode, v) {
+  dashMode = mode;
+  if (mode === "month") {
+    dashMonth = v || dashM();
+    usageMonth = dashMonth; // the water/electricity chart follows the chosen month
+  } else {
+    dashYear = v || dashY();
+  }
+  render();
+}
+
+function periodBar() {
+  const month = dashMode === "month";
+  const opts = month
+    ? dashMonths().map(m => `<option value="${m}" ${m === dashM() ? "selected" : ""}>${monthLabel(m)}${m === thisMonth() ? " (ເດືອນນີ້)" : ""}</option>`)
+    : dashYears().map(y => `<option value="${y}" ${y === dashY() ? "selected" : ""}>ປີ ${y}</option>`);
+  return `<div class="period"><div class="period-seg" role="group" aria-label="ເບິ່ງຕາມ">${[
+    ["month", "ເດືອນ"],
+    ["year", "ປີ"]
+  ]
+    .map(
+      ([k, l]) =>
+        `<button type="button" class="${dashMode === k ? "on" : ""}" aria-pressed="${dashMode === k}" onclick="setDash('${k}')">${l}</button>`
+    )
+    .join("")}</div><select aria-label="${month ? "ເລືອກເດືອນ" : "ເລືອກປີ"}" onchange="setDash('${dashMode}',this.value)">${opts.join(
+    ""
+  )}</select>${
+    month && dashM() !== thisMonth() ? `<button type="button" class="btn ghost period-now" onclick="setDash('month','${thisMonth()}')">ເດືອນນີ້</button>` : ""
+  }</div>`;
+}
+
+function monthStats(m, occ, inc) {
+  const rentRooms = new Set(allPay().filter(p => p.status === "confirmed" && p.month === m && hasKind(p, "rent")).map(p => p.room));
+  const unpaid = S.rooms.filter(r => r.t && !rentRooms.has(r.n)).length;
+  return `${moneyStat("rent", occ, `ຈາກທັງໝົດ ${kipShort(inc)}`, m)}
+  <div class="stat"><b style="color:var(--ok)">${rentRooms.size}</b><span class="mute">ຊຳລະຄ່າເຊົ່າແລ້ວ ${monthLabel(m)}</span></div>
+  <div class="stat"><b style="color:var(--bad)">${unpaid}</b><span class="mute">ຍັງບໍ່ໄດ້ຊຳລະ ${monthLabel(m)}</span></div>
+  ${["water", "elec", "garbage"].map(k => moneyStat(k, occ, "", m)).join("")}`;
+}
+
+function yearStats(y) {
+  const inYear = p => String(p.month).slice(0, 4) === y;
+  const kinds = PAY_KINDS.map(x => x[0]);
+  const total = kinds.reduce((a, k) => a + paidSum(k, inYear), 0);
+  return `<div class="stat"><b style="font-size:20px;padding:4px 0;color:var(--ok)">${kipShort(total)}</b><span class="mute">💰 ລວມທັງໝົດ ປີ ${y} (ກີບ)</span><small class="stat-sub">ສະເພາະທີ່ອະນຸມັດແລ້ວ</small></div>
+  ${kinds
+    .map(
+      k =>
+        `<div class="stat"><b style="font-size:20px;padding:4px 0">${kipShort(paidSum(k, inYear))}</b><span class="mute">${
+          STAT_EMOJI[k] ? STAT_EMOJI[k] + " " : ""
+        }${kindLabel(k)} ປີ ${y} (ກີບ)</span></div>`
+    )
+    .join("")}`;
+}
+
+// Month-by-month table for one year; tap a month to open it in month view.
+function yearTable(y) {
+  const kinds = PAY_KINDS.map(x => x[0]);
+  const last = Logic.nextMonth(thisMonth());
+  const months = Array.from({ length: 12 }, (_, i) => y + "-" + String(i + 1).padStart(2, "0")).filter(
+    m => m <= last || allPay().some(p => p.month === m)
+  );
+  const rows = months.map(m => {
+    const v = {};
+    kinds.forEach(k => (v[k] = paidSum(k, p => p.month === m)));
+    v.total = kinds.reduce((a, k) => a + v[k], 0);
+    v.rooms = new Set(allPay().filter(p => p.status === "confirmed" && p.month === m && hasKind(p, "rent")).map(p => p.room)).size;
+    return { m, v };
+  });
+  const max = Math.max(1, ...rows.map(r => r.v.total));
+  const sum = k => rows.reduce((a, r) => a + r.v[k], 0);
+  return `<div class="card"><h3 style="margin-top:0">ລາຍຮັບແຕ່ລະເດືອນ · ປີ ${y}</h3><div class="mute" style="margin:-4px 0 8px">ສະເພາະທີ່ອະນຸມັດແລ້ວ · ແຕະເດືອນເພື່ອເບິ່ງລາຍລະອຽດ</div>
+  <div class="ytable"><table><thead><tr><th>ເດືອນ</th>${kinds.map(k => `<th>${STAT_EMOJI[k] || "🏠"} ${kindLabel(k)}</th>`).join("")}<th>ລວມ</th><th>ຫ້ອງຈ່າຍຄ່າເຊົ່າ</th></tr></thead><tbody>${rows
+    .map(
+      ({ m, v }) =>
+        `<tr tabindex="0" onclick="setDash('month','${m}')" onkeydown="if(event.key==='Enter')this.click()"><td>${monthLabel(m)}</td>${kinds
+          .map(k => `<td>${v[k] ? v[k].toLocaleString() : "—"}</td>`)
+          .join("")}<td class="ytot"><span class="ybar" style="width:${Math.round((v.total / max) * 100)}%"></span><b>${
+          v.total ? v.total.toLocaleString() : "—"
+        }</b></td><td>${v.rooms}</td></tr>`
+    )
+    .join("")}</tbody><tfoot><tr><td>ລວມປີ ${y}</td>${kinds.map(k => `<td>${sum(k).toLocaleString()}</td>`).join("")}<td class="ytot"><b>${sum(
+    "total"
+  ).toLocaleString()}</b></td><td></td></tr></tfoot></table></div></div>`;
 }
 
 function openUsage() {
@@ -1027,8 +1126,8 @@ function confirmReject(kind, id) {
   kind === "pay" ? decidePay(id, false, v) : decide(id, false, v);
 }
 
-function payList() {
-  const m = thisMonth();
+function payList(month) {
+  const m = month || thisMonth();
   const rank = { none: 0, rejected: 1, pending: 2, confirmed: 3 };
   let rows = S.rooms
     .filter(r => r.t)

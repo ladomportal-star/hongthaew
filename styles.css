@@ -449,6 +449,113 @@ h3 {
   color: var(--brand-ink);
 }
 
+/* Dashboard: month / year switch */
+.period {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
+.period-seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.period-seg button {
+  border: 0;
+  background: var(--card);
+  color: var(--mute);
+  font: inherit;
+  font-weight: 700;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+.period-seg button.on {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.period select {
+  width: auto;
+  flex: 1;
+  min-width: 150px;
+  padding: 9px 12px;
+}
+
+.period .period-now {
+  min-height: 40px;
+  padding: 6px 12px;
+}
+
+/* Year view: month-by-month table */
+.ytable {
+  overflow-x: auto;
+  margin: 0 -4px;
+}
+
+.ytable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ytable th,
+.ytable td {
+  padding: 8px 6px;
+  border-top: 1px solid var(--line);
+  text-align: right;
+}
+
+.ytable th:first-child,
+.ytable td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--card);
+}
+
+.ytable th {
+  color: var(--mute);
+  font-weight: 600;
+}
+
+.ytable tbody tr {
+  cursor: pointer;
+}
+
+.ytable tbody tr:hover td,
+.ytable tbody tr:focus-visible td {
+  background: var(--vac);
+}
+
+.ytable tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--line);
+}
+
+.ytot {
+  position: relative;
+}
+
+.ytot b {
+  position: relative;
+}
+
+.ybar {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+}
+
 .copy-btn {
   margin-left: 6px;
   padding: 2px 10px;
