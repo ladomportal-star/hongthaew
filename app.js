@@ -218,6 +218,10 @@ function vDash() {
   const inc = S.rooms.filter(r => r.t).reduce((a, r) => a + r.rent, 0);
   const td = new Date(nowMs());
   return `${
+    scriptOld()
+      ? `<div class="card" style="background:var(--badbg)"><b style="color:var(--bad)">Google Apps Script ຍັງເປັນເວີຊັນເກົ່າ</b><div class="mute">ບາງຄຳສັ່ງ (ເຊັ່ນ ລຶບລາຍການ) ຈະບໍ່ສຳເລັດ ແລະ ຂໍ້ມູນຈະກັບຄືນ. ກະລຸນາວາງໂຄດ GoogleAppsScript.gs ໃໝ່ ແລ້ວ Deploy → Manage deployments → ✏️ → New version.</div></div>`
+      : ""
+  }${
     S.admin && S.admin.isDefault
       ? `<div class="card" style="background:var(--badbg)"><b style="color:var(--bad)">ກະລຸນາປ່ຽນລະຫັດຜ່ານແອດມິນ</b><div class="mute">ຍັງໃຊ້ລະຫັດຜ່ານເລີ່ມຕົ້ນ admin123 ຢູ່ — ໃຜກໍເຂົ້າໄດ້.</div><button class="btn" style="margin-top:8px;min-height:38px;padding:6px 14px" onclick="passDlg()">ປ່ຽນລະຫັດຜ່ານ</button></div>`
       : ""
@@ -1080,7 +1084,7 @@ function recordSave() {
 
 // Admin removes a payment record from history for good (with a confirmation).
 function delPayDlg(id, back) {
-  const p = S.pay.find(x => x.id === id);
+  const p = allPay().find(x => x.id === id);
   if (!p) return;
   ask(
     "ລຶບລາຍການນີ້?",

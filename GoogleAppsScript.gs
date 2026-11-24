@@ -12,6 +12,8 @@
  * 5. Log in as admin (first time: admin / admin123) and change the password at once.
  */
 
+var LOGIC_V = "5221988adb"; // version of logic.js below (the app checks it)
+
 /* ==========================================================================
    0. Shared Rules — runs in the app AND in Google Apps Script (copied into
    GoogleAppsScript.gs by build.py). Every change to the data goes
@@ -746,8 +748,14 @@ function ctx_(ss, who) {
 
 // Health check, plus the occupied room numbers for the login page's room picker.
 // Nothing else (no names, no data) is served without a login.
+// Version of the shared rules in this script (set by build.py). The app compares it with
+// its own copy and tells the admin when this script needs a "New version" deploy.
+function logicV_() {
+  return typeof LOGIC_V === "undefined" ? "" : LOGIC_V;
+}
+
 function doGet(e) {
-  var res = { ok: true, app: "hongthaew", v: 2 };
+  var res = { ok: true, app: "hongthaew", v: 2, lv: logicV_() };
   try {
     var S = readState_(SpreadsheetApp.getActiveSpreadsheet());
     if (S && Array.isArray(S.rooms)) {
@@ -805,6 +813,7 @@ function doPost(e) {
     if (dirty) writeState_(ss, S);
     var c = ctx_(ss, null);
     res.now = c.now;
+    res.lv = logicV_();
     res.month = c.month;
     return jsonOut(res);
   } catch (err) {

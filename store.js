@@ -217,7 +217,18 @@ function setSyncBadge(st, txt) {
   show(m[0], m[1]);
 }
 
+// The shared rules' version in this page (from build.py's ?v= on logic.js) and in the
+// Google Apps Script. Different = the script is an old copy that may refuse new actions.
+const APP_LV = (() => {
+  const el = document.querySelector('script[src*="logic.js?v="]');
+  const m = el && /v=([0-9a-f]+)/.exec(el.getAttribute("src"));
+  return m ? m[1] : "";
+})();
+let serverLv = null;
+const scriptOld = () => remote() && !!APP_LV && serverLv !== null && serverLv !== APP_LV;
+
 function takeServer(j) {
+  serverLv = j.lv || "";
   if (typeof j.now === "number") {
     clockOffset = j.now - Date.now();
     lsSet(CLOCK_KEY, clockOffset);
