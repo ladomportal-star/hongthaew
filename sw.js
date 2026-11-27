@@ -8,7 +8,7 @@
      sees a new sw.js, downloads the new files in the background and then hands over;
      the app reloads itself into the new version when it is safe (see app.js).
    - Google Sheet requests (another origin) are never touched. */
-const CACHE = "hongthaew-0faddd8512";
+const CACHE = "hongthaew-3aa8763e7f";
 const FONTS = "hongthaew-fonts";
 const SHELL = [
   "./",
@@ -18,10 +18,10 @@ const SHELL = [
   "icon-512.png",
   "favicon-32.png",
   "styles.css?v=128309bd99",
-  "logic.js?v=5221988adb",
+  "logic.js?v=a8c0e4a703",
   "config.js?v=f3d7405bcc",
   "store.js?v=1c57dcc507",
-  "app.js?v=f6bc1a1c10"
+  "app.js?v=736e12ffb2"
 ];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 

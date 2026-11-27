@@ -102,9 +102,9 @@ const Logic = (function () {
     return mo === 12 ? y + 1 + "-01" : y + "-" + String(mo + 1).padStart(2, "0");
   }
 
-  // Paying ahead (next month) is for the fixed amounts only: bills for electricity
-  // and water are not known yet.
-  const ADVANCE_KINDS = ["rent", "garbage"];
+  // What can be paid ahead (next month): everything, the same choices as this month.
+  // Electricity and water are typed in from the bill, as for this month.
+  const ADVANCE_KINDS = ["rent", "elec", "water", "garbage"];
 
   // Ids come from the device (so an offline action and its later references agree),
   // falling back to a server counter if that id is already taken.
@@ -184,7 +184,7 @@ const Logic = (function () {
     if (!ok && /^\d{4}-\d{2}$/.test(m) && m > nextMonth(ctx.month)) fail("ຈ່າຍລ່ວງໜ້າໄດ້ພຽງ 1 ເດືອນ");
     if (!ok) fail("ວັນທີໃນໂທລະສັບບໍ່ຖືກຕ້ອງ. ກະລຸນາກວດສອບວັນທີ ແລ້ວລອງໃໝ່.");
     if (ahead && kinds.some(k => ADVANCE_KINDS.indexOf(k) < 0))
-      fail("ຈ່າຍລ່ວງໜ້າໄດ້ສະເພາະ ຄ່າເຊົ່າ ແລະ ຄ່າຂີ້ເຫຍື້ອ");
+      fail("ປະເພດນີ້ຈ່າຍລ່ວງໜ້າບໍ່ໄດ້");
     const img = cleanImg(a.img);
     const items = {};
     kinds.forEach(k => {

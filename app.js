@@ -750,7 +750,7 @@ function payCard(n) {
           .map(p => kindsLabel(p) + " · " + PB[p.status][1])
           .join(" / ")}</div>`
       : ""
-  }${ahead ? `<div class="mute" style="margin-top:6px">ຈ່າຍລ່ວງໜ້າໄດ້ສະເພາະ ຄ່າເຊົ່າ ແລະ ຄ່າຂີ້ເຫຍື້ອ</div>` : ""}
+  }
   <label>ປະເພດການຊຳລະ <span style="font-weight:400">(ເລືອກໄດ້ຫຼາຍອັນ)</span></label>
   <div class="kinds">${PAY_KINDS.filter(([k]) => !ahead || Logic.ADVANCE_KINDS.includes(k)).map(([k, l]) => {
     const on = kinds.includes(k);
@@ -785,7 +785,7 @@ function payPick(inp) {
   });
 }
 
-// This month or next month (paying ahead: rent and garbage only).
+// This month or next month (paying ahead: the kinds in Logic.ADVANCE_KINDS).
 function setPayMonth(v) {
   payDraft.month = v;
   if (v !== thisMonth()) {
